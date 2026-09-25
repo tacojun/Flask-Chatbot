@@ -6,6 +6,7 @@ A small, dependency-light chatbot demo built with Flask. The first working versi
 
 - Flask web server
 - JSON `/ask` endpoint
+- JSON `/health` endpoint for deployment probes
 - Responsive browser UI
 - Input validation and error handling
 - Deterministic reply engine for local development
@@ -28,7 +29,9 @@ Open `http://127.0.0.1:5000` in your browser.
 pytest
 ```
 
-## API example
+## API
+
+Send a chat message:
 
 ```bash
 curl -X POST http://127.0.0.1:5000/ask \
@@ -40,6 +43,18 @@ Example response:
 
 ```json
 {"reply":"Hello! I'm a lightweight Flask chatbot demo."}
+```
+
+Check service health:
+
+```bash
+curl http://127.0.0.1:5000/health
+```
+
+A healthy process responds with HTTP 200 and:
+
+```json
+{"status":"ok"}
 ```
 
 ## Project structure
@@ -60,7 +75,6 @@ tests/
 - optional external LLM provider integration behind an adapter
 - conversation history
 - rate limiting
-- CI workflow
 - deployment documentation
 
 ## Security

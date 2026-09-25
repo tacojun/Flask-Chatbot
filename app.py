@@ -24,6 +24,12 @@ def index():
     return render_template("index.html")
 
 
+@app.get("/health")
+def health():
+    """Return a minimal readiness response for deployment health checks."""
+    return jsonify({"status": "ok"})
+
+
 @app.post("/ask")
 def ask():
     payload = request.get_json(silent=True) or {}
