@@ -32,7 +32,10 @@ def health():
 
 @app.post("/ask")
 def ask():
-    payload = request.get_json(silent=True) or {}
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "message is required"}), 400
+
     message = str(payload.get("message", "")).strip()
 
     if not message:
