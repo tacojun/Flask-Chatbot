@@ -4,6 +4,8 @@ from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
 
+MAX_MESSAGE_LENGTH = 1000
+
 
 def build_reply(message: str) -> str:
     """Return a small deterministic reply for the demo chatbot."""
@@ -45,6 +47,9 @@ def ask():
 
     if not message or not message.strip():
         return jsonify({"error": "message is required"}), 400
+
+    if len(message) > MAX_MESSAGE_LENGTH:
+        return jsonify({"error": f"message must be {MAX_MESSAGE_LENGTH} characters or fewer"}), 400
 
     return jsonify({"reply": build_reply(message)})
 

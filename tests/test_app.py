@@ -1,4 +1,4 @@
-from app import app, build_reply
+from app import MAX_MESSAGE_LENGTH, app, build_reply
 
 
 def test_build_reply_handles_known_topics():
@@ -55,6 +55,19 @@ def test_ask_route_requires_message_text():
         response = client.post("/ask", json={"message": message})
         assert response.status_code == 400
         assert response.get_json() == {"error": "message is required"}
+
+
+def test_ask_route_rejects_oversized_messages():
+    client = app.test_client()
+
+    accepted = client.post("/ask", json={"message": "a" * MAX_MESSAGE_LENGTH})
+    rejected = client.post("/ask", json={"message": "a" * (MAX_MESSAGE_LENGTH + 1)})
+
+    assert accepted.status_code == 200
+    assert rejected.status_code == 400
+    assert rejected.get_json() == {
+        "error": f"message must be {MAX_MESSAGE_LENGTH} characters or fewer"
+    }
 
 
 def test_ask_route_returns_reply():
