@@ -4,6 +4,9 @@ from app import app, build_reply
 def test_build_reply_handles_known_topics():
     assert "Flask" in build_reply("Tell me about flask")
     assert "Python" in build_reply("python")
+    assert "Hello!" in build_reply("HI!")
+    assert "Hello!" in build_reply("hey, there")
+    assert build_reply("shipping") == "You said: shipping"
 
 
 def test_index_route_returns_html():
@@ -59,3 +62,11 @@ def test_ask_route_returns_reply():
     response = client.post("/ask", json={"message": "hello"})
     assert response.status_code == 200
     assert "reply" in response.get_json()
+
+
+def test_ask_route_matches_whole_words_only():
+    client = app.test_client()
+    response = client.post("/ask", json={"message": "What is this python library?"})
+
+    assert response.status_code == 200
+    assert response.get_json()["reply"].startswith("Python is a great fit")
