@@ -45,6 +45,11 @@ Example response:
 {"reply":"Hello! I'm a lightweight Flask chatbot demo."}
 ```
 
+The JSON body must be an object with a non-empty string `message`. Missing, `null`,
+or blank messages return HTTP 400 with `{"error":"message is required"}`.
+Other types (such as numbers, booleans, arrays, or objects) return HTTP 400 with
+`{"error":"message must be a string"}`.
+
 Check service health:
 
 ```bash
