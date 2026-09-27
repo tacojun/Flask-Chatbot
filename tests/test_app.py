@@ -27,6 +27,15 @@ def test_ask_route_validates_input():
     assert response.get_json()["error"] == "message is required"
 
 
+def test_ask_route_rejects_non_object_json():
+    client = app.test_client()
+
+    for payload in (["hello"], "hello", 42):
+        response = client.post("/ask", json=payload)
+        assert response.status_code == 400
+        assert response.get_json() == {"error": "message is required"}
+
+
 def test_ask_route_returns_reply():
     client = app.test_client()
     response = client.post("/ask", json={"message": "hello"})
