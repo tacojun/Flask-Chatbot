@@ -36,9 +36,11 @@ def ask():
     if not isinstance(payload, dict):
         return jsonify({"error": "message is required"}), 400
 
-    message = str(payload.get("message", "")).strip()
+    message = payload.get("message")
+    if message is not None and not isinstance(message, str):
+        return jsonify({"error": "message must be a string"}), 400
 
-    if not message:
+    if not message or not message.strip():
         return jsonify({"error": "message is required"}), 400
 
     return jsonify({"reply": build_reply(message)})

@@ -36,6 +36,24 @@ def test_ask_route_rejects_non_object_json():
         assert response.get_json() == {"error": "message is required"}
 
 
+def test_ask_route_rejects_non_string_messages():
+    client = app.test_client()
+
+    for message in (42, True, ["hello"], {"text": "hello"}):
+        response = client.post("/ask", json={"message": message})
+        assert response.status_code == 400
+        assert response.get_json() == {"error": "message must be a string"}
+
+
+def test_ask_route_requires_message_text():
+    client = app.test_client()
+
+    for message in (None, "", "  \t  "):
+        response = client.post("/ask", json={"message": message})
+        assert response.status_code == 400
+        assert response.get_json() == {"error": "message is required"}
+
+
 def test_ask_route_returns_reply():
     client = app.test_client()
     response = client.post("/ask", json={"message": "hello"})
