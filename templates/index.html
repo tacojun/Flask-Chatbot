@@ -26,6 +26,7 @@
     <script>
       const form = document.getElementById('chat-form');
       const input = document.getElementById('user-input');
+      const sendButton = form.querySelector('button[type="submit"]');
       const chatBox = document.getElementById('chat-box');
       const maxMessageLength = Number(input.dataset.maxLength);
 
@@ -49,15 +50,15 @@
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
+        if (input.disabled) return;
         validateMessage();
         if (!input.reportValidity()) return;
         const message = input.value.trim();
         if (!message) return;
 
         appendMessage('user', message);
-        input.value = '';
-        validateMessage();
         input.disabled = true;
+        sendButton.disabled = true;
 
         try {
           const response = await fetch('/ask', {
@@ -66,11 +67,18 @@
             body: JSON.stringify({ message })
           });
           const data = await response.json();
-          appendMessage('bot', data.reply || data.error || 'Unexpected response');
+          if (!response.ok || typeof data?.reply !== 'string') {
+            appendMessage('bot', typeof data?.error === 'string' ? data.error : 'Unexpected response');
+            return;
+          }
+          input.value = '';
+          validateMessage();
+          appendMessage('bot', data.reply);
         } catch (error) {
-          appendMessage('bot', 'The server could not be reached.');
+          appendMessage('bot', 'The message could not be sent. Please try again.');
         } finally {
           input.disabled = false;
+          sendButton.disabled = false;
           input.focus();
         }
       });
