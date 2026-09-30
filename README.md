@@ -26,8 +26,14 @@ Open `http://127.0.0.1:5000` in your browser.
 ## Run tests
 
 ```bash
-pytest
+pip install -r requirements-test.txt
+python -m playwright install --with-deps chromium
+python -m pytest -q
 ```
+
+The pytest suite includes API tests and real Chromium tests of native message
+pasting and submission. Browser dependencies are only needed for tests; running
+the app still uses `requirements.txt`. CI runs the suite on Python 3.11 and 3.12.
 
 ## API
 
@@ -52,6 +58,14 @@ arrays, or objects) return HTTP 400 with
 `{"error":"message must be a string"}`. Oversized messages return HTTP 400 with
 `{"error":"message must be 1000 characters or fewer"}`.
 
+The limit counts Unicode code points, matching Python's `len()`: `😀` counts as
+one, while combining marks and joined emoji sequences count as multiple code
+points. The API counts the message as supplied, including surrounding whitespace.
+The browser keeps its existing behavior of trimming surrounding whitespace before
+sending, and validates that trimmed message against the same server-provided
+limit. Overlong input stays visible for editing and cannot be sent; it is not
+silently truncated.
+
 Check service health:
 
 ```bash
@@ -69,12 +83,14 @@ A healthy process responds with HTTP 200 and:
 ```text
 app.py
 requirements.txt
+requirements-test.txt
 templates/
   index.html
 static/
   style.css
 tests/
   test_app.py
+  test_browser.py
 ```
 
 ## Roadmap

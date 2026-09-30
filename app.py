@@ -26,7 +26,7 @@ def build_reply(message: str) -> str:
 
 @app.get("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", max_message_length=MAX_MESSAGE_LENGTH)
 
 
 @app.get("/health")

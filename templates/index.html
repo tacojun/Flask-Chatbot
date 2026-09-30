@@ -18,7 +18,7 @@
 
       <form id="chat-form">
         <label for="user-input" class="sr-only">Message</label>
-        <input id="user-input" name="message" type="text" autocomplete="off" maxlength="1000" placeholder="Type a message..." required />
+        <input id="user-input" name="message" type="text" autocomplete="off" data-max-length="{{ max_message_length }}" placeholder="Type a message..." required />
         <button type="submit">Send</button>
       </form>
     </main>
@@ -27,6 +27,17 @@
       const form = document.getElementById('chat-form');
       const input = document.getElementById('user-input');
       const chatBox = document.getElementById('chat-box');
+      const maxMessageLength = Number(input.dataset.maxLength);
+
+      function validateMessage() {
+        // String iteration counts code points, matching Python's len().
+        const tooLong = Array.from(input.value.trim()).length > maxMessageLength;
+        input.setCustomValidity(tooLong
+          ? `message must be ${maxMessageLength} characters or fewer`
+          : '');
+      }
+
+      input.addEventListener('input', validateMessage);
 
       function appendMessage(role, text) {
         const message = document.createElement('div');
@@ -38,11 +49,14 @@
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
+        validateMessage();
+        if (!input.reportValidity()) return;
         const message = input.value.trim();
         if (!message) return;
 
         appendMessage('user', message);
         input.value = '';
+        validateMessage();
         input.disabled = true;
 
         try {
